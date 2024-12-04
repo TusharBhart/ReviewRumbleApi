@@ -6,11 +6,10 @@ public interface IDataRepository
     public Task<List<PullRequest>> GetAllPullRequestsAsync();
     public Task<PullRequest?> GetPullRequestByIdAsync(int id);
     public Task AddPullRequestAsync(PullRequest pullRequest);
-    public Task<List<Reviewer>> GetAllReviewersAsync();
-    public Task<Reviewer?> GetReviewerByIdAsync(int id);
-
-    public Task<Reviewer?> GetReviewerWithLeastPendingPrsAsync(List<string> reviewers);
-    public Task AddReviewerAsync(Reviewer reviewer);
-    public Task AssignReviewerToPullRequestAsync(PullRequest newPullRequest, List<Reviewer> reviewer);
+    public Task<List<User>> GetAllReviewersAsync();
+    public Task<User?> GetUserByUserNameAsync(string userName);
+    public Task UpdateUsersInProgressCountAsync(List<User> users);
+    public Task<User?> GetReviewerWithLeastInProgressCountAsync(List<string> reviewers, HashSet<string> restrictedReviewers);
+    public Task AddReviewerAsync(User reviewer);
 }
 

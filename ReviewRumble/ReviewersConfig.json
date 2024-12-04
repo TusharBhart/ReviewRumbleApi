@@ -1,28 +1,28 @@
 {
   "groups": {
-    "angular-developer": [
+    "angularDevelopers": [
       "Ayushi-Rohela",
       "adarshkumar-wg",
       "gauravpreet-wg"
     ],
-    "nonprod-admins": [
+    "nonProdConfigAdmins": [
       "durgeshkumar14",
       "vverma04",
       "atin-singla",
       "saurabhb-watchguard"
     ],
-    "prod-admins": [
+    "prodConfigAdmins": [
       "durgeshkumar14",
       "sviru"
     ],
-    "prod-access": [
+    "prodConfigAccess": [
       "vverma04",
       "saurabhb-watchguard",
       "atin-singla",
       "adarshkumar-wg",
       "sauravjaiswal"
     ],
-    "br-api-reviewers": [
+    "brApiReviewers": [
       "saurabhb-watchguard",
       "sauravjaiswal",
       "atin-singla",
@@ -30,16 +30,16 @@
       "arunrfid",
       "alokwg"
     ],
-    "tier-1-reviewers": [
+    "primaryReviewers": [
       "saurabhb-watchguard",
       "sauravjaiswal",
       "atin-singla",
       "adarshkumar-wg",
       "arunrfid",
       "vverma04",
-      "durgeshkumar14--"
+      "durgeshkumar14"
     ],
-    "tier-2-reviewers": [
+    "secondaryReviewers": [
       "vsingla10",
       "alokwg",
       "gauravpreet-wg",
@@ -54,7 +54,7 @@
       "kunalagarwal05",
       "WG-SSharma"
     ],
-    "all-reviewers": [
+    "allReviewers": [
       "vsingla10",
       "alokwg",
       "gauravpreet-wg",
@@ -77,25 +77,26 @@
       "durgeshkumar140"
     ]
   },
-  "repos": {
-    "myproductsui": [
-      "angular-developer"
-    ],
-    "businessruleapi": [
-      "br-api-reviewers",
-      "br-api-reviewers"
-    ],
-    "prodappconfigurations": [
-      "prod-admins",
-      "prod-access"
-    ],
-    "nonprodappconfigurations": [
-      "nonprod-admins",
-      "all-reviewers"
-    ],
-    "all_repos": [
-      "tier-1-reviewers",
-      "tier-2-reviewers"
-    ]
+  "repositories": {
+    "myProductsUi": {
+      "priority": 2,
+      "reviewers": [ "angularDevelopers" ]
+    },
+    "businessRuleApi": {
+      "priority": 3,
+      "reviewers": [ "brApiReviewers", "brApiReviewers" ]
+    },
+    "productionAppConfiguration": {
+      "priority": 1,
+      "reviewers": [ "prodConfigAdmins", "prodConfigAccess" ]
+    },
+    "nonProdAppConfiguration": {
+      "priority": 4,
+      "reviewers": [ "nonProdConfigAdmins", "allReviewers" ]
+    },
+    "default": {
+      "priority": 100000000,
+      "reviewers": [ "primaryReviewers", "secondaryReviewers" ]
+    }
   }
 }

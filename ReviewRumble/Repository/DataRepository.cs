@@ -15,16 +15,16 @@ public class DataRepository : IDataRepository
     public async Task<List<PullRequest>> GetAllPullRequestsAsync()
     {
         return await context.PullRequests
-            .Include(pr => pr.AssignedFirstReviewer)
-            .Include(pr => pr.AssignedSecondReviewer)
+            .Include(pr => pr.PrimaryReviewer)
+            .Include(pr => pr.SecondaryReviewer)
             .ToListAsync();
     }
 
     public async Task<PullRequest?> GetPullRequestByIdAsync(int id)
     {
         return await context.PullRequests
-            .Include(pr => pr.AssignedFirstReviewer)
-            .Include(pr => pr.AssignedSecondReviewer)
+            .Include(pr => pr.PrimaryReviewer)
+            .Include(pr => pr.SecondaryReviewer)
             .FirstOrDefaultAsync(pr => pr.Id == id);
     }
 
@@ -34,74 +34,38 @@ public class DataRepository : IDataRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<Reviewer>> GetAllReviewersAsync()
+    public async Task<List<User>> GetAllReviewersAsync()
     {
-        return await context.Reviewers
+        return await context.Users
             .Include(r => r.AssignedPullRequests)
             .ToListAsync();
     }
 
-    public async Task<Reviewer?> GetReviewerByIdAsync(int id)
+    public async Task<User?> GetUserByUserNameAsync(string userName)
     {
-        return await context.Reviewers
-            .Include(r => r.AssignedPullRequests)
-            .FirstOrDefaultAsync(r => r.Id == id);
+        return await context.Users
+            .FirstOrDefaultAsync(user => user.Username == userName);
     }
 
-    public async Task<Reviewer?> GetReviewerWithLeastPendingPrsAsync(List<string> reviewers)
+    public async Task UpdateUsersInProgressCountAsync(List<User> users)
     {
-        return await context.Reviewers
-            .Where( r => reviewers.Contains(r.Username)) 
-            .OrderBy(r => r.PendingPrsToReview)        
+        context.Users.UpdateRange(users);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetReviewerWithLeastInProgressCountAsync(List<string> reviewers, HashSet<string> restrictedReviewers)
+    {
+        return await context.Users
+            .Where(user => !restrictedReviewers.Contains(user.Username))
+            .Where(user => reviewers.Contains(user.Username)) 
+            .OrderBy(user => user.InProgressReviewCount)
+            .Take(1)
             .FirstOrDefaultAsync();
     }
 
-    public async Task AddReviewerAsync(Reviewer reviewer)
+    public async Task AddReviewerAsync(User reviewer)
     {
-        context.Reviewers.Add(reviewer);
+        context.Users.Add(reviewer);
         await context.SaveChangesAsync();
     }
-
-    //public async Task AssignReviewerToPullRequestAsync(int pullRequestId, int reviewerId, bool isFirstReviewer)
-    //{
-    //    var pullRequest = await GetPullRequestByIdAsync(pullRequestId);
-    //    var reviewer = await GetReviewerByIdAsync(reviewerId);
-
-    //    if (pullRequest == null || reviewer == null)
-    //    {
-    //        throw new ArgumentException("PullRequest or Reviewer not found.");
-    //    }
-
-    //    if (isFirstReviewer)
-    //    {
-    //        pullRequest.AssignedFirstReviewerId = reviewerId;
-    //        pullRequest.AssignedFirstReviewer = reviewer;
-    //    }
-    //    else
-    //    {
-    //        pullRequest.AssignedSecondReviewerId = reviewerId;
-    //        pullRequest.AssignedSecondReviewer = reviewer;
-    //    }
-
-    //    context.PullRequests.Update(pullRequest);
-    //    await context.SaveChangesAsync();
-
-    //}
-    public async Task AssignReviewerToPullRequestAsync(PullRequest newPullRequest, List<Reviewer> reviewers)
-    {
-        if (reviewers.Count > 0)
-        {
-            newPullRequest.AssignedFirstReviewerId = reviewers[0].Id;
-            newPullRequest.AssignedFirstReviewer = reviewers[0];
-        }
-        if(reviewers.Count > 1)
-        {
-            newPullRequest.AssignedSecondReviewerId = reviewers[1].Id;
-            newPullRequest.AssignedSecondReviewer = reviewers[1];
-        }
-
-        context.PullRequests.Add(newPullRequest);
-        await context.SaveChangesAsync();
-    }
-
 }

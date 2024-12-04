@@ -1,7 +1,9 @@
 ﻿namespace ReviewRumble.Models;
-public enum PrStatusEnum
+
+public enum ReviewStatusEnum
 {
+    Open,
     InReview,
     RequestChanges,
-    Closed
+    Approved
 }

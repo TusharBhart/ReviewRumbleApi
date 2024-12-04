@@ -6,38 +6,20 @@ namespace ReviewRumble.Controllers
 {
 	[ApiController]
 	[Route("[controller]")]
-	public class UserController : Controller
+	public class UserController : ControllerBase
 	{
-		private readonly IUserManager _userManager;
-		private readonly IConfiguration _configuration;
+		private readonly IUserManager userManager;
 
-		public UserController(IUserManager userManager, IConfiguration configuration)
-		{
-			_userManager = userManager;
-			_configuration = configuration;
+		public UserController(IUserManager userManager)
+		{ 
+            this.userManager = userManager;
 		}
 
-		[HttpPost("Login")]
-		public async Task<IActionResult> Login([Query] string code)
-		{
-			try
-			{
-				var response = await _userManager.GetAccessToken(_configuration["GithubApiClientSettings:ClientId"],
-					_configuration["GithubApiClientSettings:ClientSecret"],
-					code);
-				return Ok(response);
-			}
-			catch(Exception ex) 
-			{
-				return Unauthorized("Not Authorized");
-			}
-		}
-
-		[HttpGet("UserDetails")]
+		[HttpGet]
 
 		public async Task<object> GetUserDetails()
 		{
-			var response = await _userManager.GetUser();
+			var response = await userManager.GetUser();
 			return response;
 		}
 	}

@@ -4,5 +4,5 @@ namespace ReviewRumble.Business;
 
 public interface IPullRequestBal
 {
-    public Task<PrReviewers> GetReviewers(GetPullRequest pullRequest);
+    public Task<PullRequestViewModel> Add(NewPullRequest newPullRequest, string authorName);
 }

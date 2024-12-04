@@ -10,6 +10,18 @@ namespace ReviewRumble.Repository
 		Task<List<string>> GetUser();
 
 		[Post("/login/oauth/access_token")]
-		Task<object> GenerateAccessToken([Query] string client_id, [Query] string client_secret, [Query] string code);
+		Task<object> GenerateAccessToken([Query] AccessTokenRequestParams accessTokenRequest);
 	}
+
+    public class AccessTokenRequestParams
+    {
+		[AliasAs("code")]
+        public string Code { get; set; }
+
+        [AliasAs("client_id")]
+		public string ClientId { get; set; }
+
+        [AliasAs("client_secret")]
+		public string ClientSecret { get; set; }
+    }
 }

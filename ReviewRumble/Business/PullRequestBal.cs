@@ -1,40 +1,57 @@
-﻿using System.Data;
-using ReviewRumble.Models;
+﻿using ReviewRumble.Models;
 using ReviewRumble.Repository;
+using ReviewRumble.Utils;
 
 namespace ReviewRumble.Business;
 
 public class PullRequestBal : IPullRequestBal
 {
-    private readonly ConfigurationService configurationService;
+    private readonly ReviewsConfigManager reviewsConfigManager;
     private readonly IDataRepository dataRepository;
-    public PullRequestBal(ConfigurationService configurationService, IDataRepository dataRepository)
+
+    public PullRequestBal(ReviewsConfigManager reviewsConfigManager, IDataRepository dataRepository)
     {
-        this.configurationService = configurationService;
+        this.reviewsConfigManager = reviewsConfigManager;
         this.dataRepository = dataRepository;
     }
 
-    public async Task<PrReviewers> GetReviewers(GetPullRequest pullRequest)
+    public async Task<PullRequestViewModel> Add(NewPullRequest pullRequest, string authorName)
     {
-        var repo = GetRepoName(pullRequest.PullRequestUrl);
+        var repository = GetRepoName(pullRequest.Url);
+        var groups = reviewsConfigManager.GetRepositoryGroups(repository);
 
-        var groups = configurationService.GetRepositoryGroups(repo);
+        HashSet<string> restrictedReviewers = [authorName]; 
+        var reviewers = groups.Select(group => GetOptimalReviewerAsync(group, restrictedReviewers).Result).ToList();
+        var author =  await dataRepository.GetUserByUserNameAsync(authorName);
 
-        var reviewers = groups.Select(g => GetOptimalReviewers(g).Result).ToList();
-
-        var newPr = new PullRequest
+        var newPullRequest = new PullRequest
         {
-            Author = pullRequest.Author,
-            Url = pullRequest.PullRequestUrl,
-            CreatedDate = DateTime.UtcNow,
-            Repository = repo
+            Url = pullRequest.Url,
+            AddedDate = DateTime.UtcNow,
+            Repository = repository,
+            AuthorId = author?.Id ?? 0,
+            //Author = author,
+            PrimaryReviewerId = reviewers[0]?.Id ?? 0,
+            //PrimaryReviewer = reviewers[0],
+            SecondaryReviewerId = reviewers.Count > 1 ? reviewers[1]?.Id ?? 0 : 0,
+            //SecondaryReviewer= reviewers.Count > 1 ? reviewers[1] : null
         };
 
-        await dataRepository.AssignReviewerToPullRequestAsync(newPr, reviewers);
+        await dataRepository.AddPullRequestAsync(newPullRequest);
+        
+        reviewers.ForEach(reviewer =>
+            reviewer.InProgressReviewCount += 1);
+        await dataRepository.UpdateUsersInProgressCountAsync(reviewers);
 
-        return new PrReviewers
+        return new PullRequestViewModel
         {
-            Reviewers = reviewers
+            Url = newPullRequest.Url,
+            Author = newPullRequest.Author?.Username ?? string.Empty,
+            AddedDate = newPullRequest.AddedDate,
+            Repository = newPullRequest.Repository,
+            PrimaryReviewer = newPullRequest.PrimaryReviewer?.Username ?? string.Empty,
+            SecondaryReviewer = newPullRequest.SecondaryReviewer?.Username ?? string.Empty,
+            Status = ReviewStatusEnum.Open.ToString()
         };
     }
 
@@ -45,7 +62,7 @@ public class PullRequestBal : IPullRequestBal
         if (string.IsNullOrWhiteSpace(url))
             throw new ArgumentException("URL cannot be null or empty.");
 
-        var parts = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+        var parts = url.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         if (!parts[1].Contains("github.com"))
             throw new ArgumentException("Invalid GitHub URL format.");
@@ -53,10 +70,18 @@ public class PullRequestBal : IPullRequestBal
         return parts[3];
     }
 
-    private async Task<Reviewer?> GetOptimalReviewers(string group)
+    private async Task<User?> GetOptimalReviewerAsync(string group, HashSet<string> restrictedReviewers)
     {
-        var reviewers = configurationService.GetGroupReviewers(group);
-        return await dataRepository.GetReviewerWithLeastPendingPrsAsync(reviewers);
+        var reviewers = reviewsConfigManager.GetGroupReviewers(group);
+        if (reviewers == null)
+        {
+            throw new ArgumentException("reviewers is not null");
+        }
+
+        var reviewer = await dataRepository.GetReviewerWithLeastInProgressCountAsync(reviewers, restrictedReviewers);
+
+        if (reviewer is not null) restrictedReviewers.Add(reviewer.Username);
+        return reviewer;
     }
 
     #endregion

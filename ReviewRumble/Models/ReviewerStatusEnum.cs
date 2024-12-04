@@ -3,6 +3,6 @@
 public enum ReviewerStatusEnum
 {
     Active,
-    Inactive,
+    Inactive
 }
 

@@ -2,17 +2,16 @@
 
 public class PullRequest
 {
-    public int Id { get; set; } 
-    public string Author { get; set; } = string.Empty;
-    public string Url { get; set; } = string.Empty;
-    public string Repository { get; set; } = string.Empty;
-    public PrStatusEnum FirstReviewerStatus { get; set; } = PrStatusEnum.InReview;
-    public PrStatusEnum SecondReviewerStatus { get; set; } = PrStatusEnum.InReview;
-    public DateTime CreatedDate { get; set; } 
-
-    public int AssignedFirstReviewerId{ get; set; }
-    public Reviewer? AssignedFirstReviewer { get; set; }
-
-    public int AssignedSecondReviewerId { get; set; }
-    public Reviewer? AssignedSecondReviewer { get; set; }
+    public int Id { get; set; }
+    public string Url { get; set; }
+    public string Repository { get; set; }
+    public ReviewStatusEnum PrimaryReviewerStatus { get; set; } = ReviewStatusEnum.Open;
+    public ReviewStatusEnum SecondaryReviewerStatus { get; set; } = ReviewStatusEnum.Open;
+    public DateTime AddedDate { get; set; }
+    public int AuthorId { get; set; }
+    public User? Author { get; set; }
+    public int PrimaryReviewerId { get; set; }
+    public User? PrimaryReviewer { get; set; }
+    public int SecondaryReviewerId { get; set; }
+    public User? SecondaryReviewer { get; set; }
 }

@@ -1,11 +1,12 @@
 ﻿namespace ReviewRumble.Models;
 
-public class Reviewer
+public class User
 {
     public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
     public ReviewerStatusEnum Status { get; set; } = ReviewerStatusEnum.Active;
-    public int TotalPrsReviewed { get; set; }
-    public int PendingPrsToReview { get; set; }
+    public int TotalReviewCount { get; set; }
+    public int InProgressReviewCount { get; set; }
     public List<PullRequest> AssignedPullRequests { get; set; } = [];
+    public List<PullRequest> MyPullRequests { get; set; } = [];
 }

@@ -6,25 +6,27 @@ using ReviewRumble.Models;
 namespace ReviewRumble.Controllers;
 
 [ApiController]
-[Route("api/pullRequest")]
-public class PullRequestController : ControllerBase
+[Route("api/[controller]")]
+public class PullRequestsController : ControllerBase
 {
     private readonly IPullRequestBal pullRequestBal;
-    public PullRequestController(IPullRequestBal pullRequestBal)
+
+    public PullRequestsController(IPullRequestBal pullRequestBal)
     {
         this.pullRequestBal = pullRequestBal;
     }
 
-    [HttpPost("reviewers")]
-    [ProducesResponseType(typeof(PrReviewers), 200)]
+    [HttpPost]
+    [ProducesResponseType(typeof(PullRequestViewModel), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 404)]
-    public IActionResult GetReviewers([FromBody] GetPullRequest pullRequest)
+    public ActionResult<PullRequestViewModel> AddPullRequest([FromBody] NewPullRequest newPullRequest)
     {
         try
         {
-            var reviewers = pullRequestBal.GetReviewers(pullRequest);
+            var author = User.Identity?.Name ?? "";
+            var pullRequest = pullRequestBal.Add(newPullRequest, author);
 
-            return Ok(reviewers);
+            return Ok(pullRequest);
         }
         catch (Exception)
         {

@@ -1,25 +1,36 @@
 using Microsoft.EntityFrameworkCore;
 using Refit;
-using ReviewRumble;
 using ReviewRumble.Business;
+using ReviewRumble.Models;
 using ReviewRumble.Repository;
+using ReviewRumble.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
 
-builder.Services.AddSingleton<ConfigurationService>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policyBuilder => {
+        policyBuilder.WithOrigins("https://localhost:4200");
+        policyBuilder.WithMethods("GET", "POST", "PUT");
+        policyBuilder.AllowAnyHeader();
+    });
+});
+
+builder.Services.AddSingleton<ReviewsConfigManager>();
 builder.Services.AddScoped<IPullRequestBal, PullRequestBal>();
 builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<GithubClientSettings>(
+    builder.Configuration.GetSection(GithubClientSettings.GithubApiClientSettings));
 
 builder.Services
 	.AddRefitClient<IGithubApiClient>()
@@ -31,7 +42,6 @@ builder.Services
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -40,6 +50,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
