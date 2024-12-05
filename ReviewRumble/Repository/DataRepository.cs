@@ -12,21 +12,22 @@ public class DataRepository : IDataRepository
         this.context = context;
     }
 
-    //public async Task<List<PullRequest>> GetAllPullRequestsAsync()
-    //{
-    //    return await context.PullRequests
-    //        .Include(pr => pr.PrimaryReviewer)
-    //        .Include(pr => pr.SecondaryReviewer)
-    //        .ToListAsync();
-    //}
+    public async Task<List<PullRequest>> GetAllPullRequestsAsync()
+    {
+        return await context.PullRequests
+            .Include(pr => pr.Author)
+            .Include(pr => pr.Reviewers)
+            .ThenInclude(r => r.Reviewer)
+            .ToListAsync();
+    }
 
-    //public async Task<PullRequest?> GetPullRequestByIdAsync(int id)
-    //{
-    //    return await context.PullRequests
-    //        .Include(pr => pr.PrimaryReviewer)
-    //        .Include(pr => pr.SecondaryReviewer)
-    //        .FirstOrDefaultAsync(pr => pr.Id == id);
-    //}
+    public async Task<PullRequest?> GetPullRequestByAuthorAsync(string author)
+    {
+        return await context.PullRequests
+            .Include(pr => pr.Author)
+            .Include(pr => pr.Reviewers)
+            .FirstOrDefaultAsync(pr => pr.Author.Username == author);
+    }
 
     public async Task AddPullRequestAsync(PullRequest pullRequest, List<User> reviewers)
     {

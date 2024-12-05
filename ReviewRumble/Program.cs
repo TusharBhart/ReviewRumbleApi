@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Refit;
@@ -31,6 +32,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<ReviewsConfigManager>();
 builder.Services.AddScoped<IPullRequestBal, PullRequestBal>();
+builder.Services.AddScoped<IUserBal, UserBal>();
 builder.Services.AddScoped<IAuthBusiness, AuthBusiness>();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 builder.Services.AddJwtTokenServices(builder.Configuration);

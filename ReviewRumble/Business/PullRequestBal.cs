@@ -1,6 +1,7 @@
 ﻿using ReviewRumble.Models;
 using ReviewRumble.Repository;
 using ReviewRumble.Utils;
+using System;
 
 namespace ReviewRumble.Business;
 
@@ -15,7 +16,7 @@ public class PullRequestBal : IPullRequestBal
         this.dataRepository = dataRepository;
     }
 
-    public async Task<PullRequestViewModel> Add(NewPullRequest pullRequest, string authorName)
+    public async Task<PullRequestViewModel> AddAsync(NewPullRequest pullRequest, string authorName)
     {
         var repository = GetRepoName(pullRequest.Url);
         var groups = reviewsConfigManager.GetRepositoryGroups(repository);
@@ -44,10 +45,24 @@ public class PullRequestBal : IPullRequestBal
             Author = newPullRequest.Author?.Username ?? string.Empty,
             AddedDate = newPullRequest.AddedDate,
             Repository = newPullRequest.Repository,
-            PrimaryReviewer = newPullRequest.Reviewers.ToList().Count > 0 ? newPullRequest.Reviewers.ToList()[0].Reviewer.Username : null,
-            SecondaryReviewer = newPullRequest.Reviewers.ToList().Count > 1 ? newPullRequest.Reviewers.ToList()[1].Reviewer.Username : null,
+            Reviewers = newPullRequest.Reviewers.Select(r => r.Reviewer.Username).ToList(),
             Status = ReviewStatusEnum.Open.ToString()
         };
+    }
+
+    public async Task<List<PullRequestViewModel>> GetAllAsync()
+    {
+        var pullRequests = await dataRepository.GetAllPullRequestsAsync();
+
+        return pullRequests.Select(pr => new PullRequestViewModel
+        {
+            Url = pr.Url,
+            Author = pr.Author?.Username ?? string.Empty,
+            AddedDate = pr.AddedDate,
+            Repository = pr.Repository,
+            Reviewers = pr.Reviewers.Select(r => r.Reviewer.Username).ToList(),
+            Status = ReviewStatusEnum.Open.ToString()
+        }).ToList();
     }
 
     #region Private functions
