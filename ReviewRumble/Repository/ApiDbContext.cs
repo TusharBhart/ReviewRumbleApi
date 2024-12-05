@@ -12,26 +12,26 @@ public class ApiDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PullRequest>()
-            .HasOne(p => p.PrimaryReviewer)
-            .WithMany(u => u.AssignedPullRequests)
-            .HasForeignKey(p => p.PrimaryReviewerId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_PullRequest_PrimaryReviewer");
+        modelBuilder.Entity<PullRequestReviewer>()
+            .HasKey(prr => new { prr.PullRequestId, prr.ReviewerId });
+
+        modelBuilder.Entity<PullRequestReviewer>()
+            .HasOne(prr => prr.PullRequest)
+            .WithMany(pr => pr.Reviewers)
+            .HasForeignKey(prr => prr.PullRequestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PullRequestReviewer>()
+            .HasOne(prr => prr.Reviewer)
+            .WithMany(u => u.AssignedReviews)
+            .HasForeignKey(prr => prr.ReviewerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<PullRequest>()
-            .HasOne(p => p.SecondaryReviewer)
-            .WithMany(u => u.AssignedPullRequests)
-            .HasForeignKey(p => p.SecondaryReviewerId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_PullRequest_SecondaryReviewer");
-
-        modelBuilder.Entity<PullRequest>()
-            .HasOne(p => p.Author)
+            .HasOne(prr => prr.Author)
             .WithMany(u => u.MyPullRequests)
-            .HasForeignKey(p => p.AuthorId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_PullRequest_Author");
+            .HasForeignKey(prr => prr.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         base.OnModelCreating(modelBuilder);
     }

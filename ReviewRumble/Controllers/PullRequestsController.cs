@@ -19,12 +19,12 @@ public class PullRequestsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(PullRequestViewModel), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 404)]
-    public ActionResult<PullRequestViewModel> AddPullRequest([FromBody] NewPullRequest newPullRequest)
+    public async Task<ActionResult<PullRequestViewModel>> AddPullRequest([FromBody] NewPullRequest newPullRequest)
     {
         try
         {
-            var author = User.Identity?.Name ?? "";
-            var pullRequest = pullRequestBal.Add(newPullRequest, author);
+            var author = User.Identity?.Name ?? "tusharbhart-wg";
+            var pullRequest = await pullRequestBal.Add(newPullRequest, author);
 
             return Ok(pullRequest);
         }

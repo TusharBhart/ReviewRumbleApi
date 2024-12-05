@@ -20,25 +20,20 @@ public class PullRequestBal : IPullRequestBal
         var repository = GetRepoName(pullRequest.Url);
         var groups = reviewsConfigManager.GetRepositoryGroups(repository);
 
-        HashSet<string> restrictedReviewers = [authorName]; 
+        HashSet<string> restrictedReviewers = [authorName];
         var reviewers = groups.Select(group => GetOptimalReviewerAsync(group, restrictedReviewers).Result).ToList();
-        var author =  await dataRepository.GetUserByUserNameAsync(authorName);
+        var author = await dataRepository.GetUserByUserNameAsync(authorName);
 
         var newPullRequest = new PullRequest
         {
             Url = pullRequest.Url,
             AddedDate = DateTime.UtcNow,
             Repository = repository,
-            AuthorId = author?.Id ?? 0,
-            //Author = author,
-            PrimaryReviewerId = reviewers[0]?.Id ?? 0,
-            //PrimaryReviewer = reviewers[0],
-            SecondaryReviewerId = reviewers.Count > 1 ? reviewers[1]?.Id ?? 0 : 0,
-            //SecondaryReviewer= reviewers.Count > 1 ? reviewers[1] : null
+            AuthorId = author?.Id ?? 0
         };
 
-        await dataRepository.AddPullRequestAsync(newPullRequest);
-        
+        await dataRepository.AddPullRequestAsync(newPullRequest, reviewers);
+
         reviewers.ForEach(reviewer =>
             reviewer.InProgressReviewCount += 1);
         await dataRepository.UpdateUsersInProgressCountAsync(reviewers);
@@ -49,8 +44,8 @@ public class PullRequestBal : IPullRequestBal
             Author = newPullRequest.Author?.Username ?? string.Empty,
             AddedDate = newPullRequest.AddedDate,
             Repository = newPullRequest.Repository,
-            PrimaryReviewer = newPullRequest.PrimaryReviewer?.Username ?? string.Empty,
-            SecondaryReviewer = newPullRequest.SecondaryReviewer?.Username ?? string.Empty,
+            PrimaryReviewer = newPullRequest.Reviewers.ToList().Count > 0 ? newPullRequest.Reviewers.ToList()[0].Reviewer.Username : null,
+            SecondaryReviewer = newPullRequest.Reviewers.ToList().Count > 1 ? newPullRequest.Reviewers.ToList()[1].Reviewer.Username : null,
             Status = ReviewStatusEnum.Open.ToString()
         };
     }

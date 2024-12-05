@@ -8,6 +8,6 @@ public class PullRequestViewModel
     public string Repository { get; set; }
     public string Status { get; set; }
     public DateTime AddedDate { get; set; }
-    public string PrimaryReviewer { get; set; }
-    public string SecondaryReviewer { get; set; }
+    public string? PrimaryReviewer { get; set; }
+    public string? SecondaryReviewer { get; set; }
 }

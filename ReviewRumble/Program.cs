@@ -15,7 +15,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policyBuilder => {
+    options.AddDefaultPolicy(policyBuilder =>
+    {
         policyBuilder.WithOrigins("https://localhost:4200");
         policyBuilder.WithMethods("GET", "POST", "PUT");
         policyBuilder.AllowAnyHeader();
@@ -33,12 +34,12 @@ builder.Services.Configure<GithubClientSettings>(
     builder.Configuration.GetSection(GithubClientSettings.GithubApiClientSettings));
 
 builder.Services
-	.AddRefitClient<IGithubApiClient>()
-	.ConfigureHttpClient(httpClient =>
-	{
-		httpClient.BaseAddress = new Uri(builder.Configuration["GithubApiClientSettings:BaseUrl"]);
-		httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-	});
+    .AddRefitClient<IGithubApiClient>()
+    .ConfigureHttpClient(httpClient =>
+    {
+        httpClient.BaseAddress = new Uri(builder.Configuration["GithubApiClientSettings:BaseUrl"]);
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+    });
 
 var app = builder.Build();
 

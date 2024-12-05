@@ -7,6 +7,6 @@ public class User
     public ReviewerStatusEnum Status { get; set; } = ReviewerStatusEnum.Active;
     public int TotalReviewCount { get; set; }
     public int InProgressReviewCount { get; set; }
-    public List<PullRequest> AssignedPullRequests { get; set; } = [];
     public List<PullRequest> MyPullRequests { get; set; } = [];
+    public ICollection<PullRequestReviewer> AssignedReviews { get; set; } = new List<PullRequestReviewer>();
 }

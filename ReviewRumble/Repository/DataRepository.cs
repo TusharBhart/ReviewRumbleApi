@@ -12,34 +12,42 @@ public class DataRepository : IDataRepository
         this.context = context;
     }
 
-    public async Task<List<PullRequest>> GetAllPullRequestsAsync()
-    {
-        return await context.PullRequests
-            .Include(pr => pr.PrimaryReviewer)
-            .Include(pr => pr.SecondaryReviewer)
-            .ToListAsync();
-    }
+    //public async Task<List<PullRequest>> GetAllPullRequestsAsync()
+    //{
+    //    return await context.PullRequests
+    //        .Include(pr => pr.PrimaryReviewer)
+    //        .Include(pr => pr.SecondaryReviewer)
+    //        .ToListAsync();
+    //}
 
-    public async Task<PullRequest?> GetPullRequestByIdAsync(int id)
-    {
-        return await context.PullRequests
-            .Include(pr => pr.PrimaryReviewer)
-            .Include(pr => pr.SecondaryReviewer)
-            .FirstOrDefaultAsync(pr => pr.Id == id);
-    }
+    //public async Task<PullRequest?> GetPullRequestByIdAsync(int id)
+    //{
+    //    return await context.PullRequests
+    //        .Include(pr => pr.PrimaryReviewer)
+    //        .Include(pr => pr.SecondaryReviewer)
+    //        .FirstOrDefaultAsync(pr => pr.Id == id);
+    //}
 
-    public async Task AddPullRequestAsync(PullRequest pullRequest)
+    public async Task AddPullRequestAsync(PullRequest pullRequest, List<User> reviewers)
     {
-        context.PullRequests.Add(pullRequest);
+        foreach(var reviewer in reviewers)
+        {
+            pullRequest.Reviewers.Add(new PullRequestReviewer
+            {
+                ReviewerId = reviewer.Id
+            });
+        }
+
+        await context.PullRequests.AddAsync(pullRequest);
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<User>> GetAllReviewersAsync()
-    {
-        return await context.Users
-            .Include(r => r.AssignedPullRequests)
-            .ToListAsync();
-    }
+    //public async Task<List<User>> GetAllReviewersAsync()
+    //{
+    //    return await context.Users
+    //        .Include(r => r.AssignedPullRequests)
+    //        .ToListAsync();
+    //}
 
     public async Task<User?> GetUserByUserNameAsync(string userName)
     {
@@ -56,8 +64,8 @@ public class DataRepository : IDataRepository
     public async Task<User?> GetReviewerWithLeastInProgressCountAsync(List<string> reviewers, HashSet<string> restrictedReviewers)
     {
         return await context.Users
-            .Where(user => !restrictedReviewers.Contains(user.Username))
-            .Where(user => reviewers.Contains(user.Username)) 
+            .Where(user => user.Status != ReviewerStatusEnum.Inactive && !restrictedReviewers.Contains(user.Username) &&
+                           reviewers.Contains(user.Username))
             .OrderBy(user => user.InProgressReviewCount)
             .Take(1)
             .FirstOrDefaultAsync();
