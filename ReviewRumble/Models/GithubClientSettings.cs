@@ -2,7 +2,7 @@
 {
     public class GithubClientSettings
     {
-        public const string GithubApiClientSettings = "GithubApiClientSettings";
+        public const string GithubAppClientSettings = "GithubAppClientSettings";
 
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }

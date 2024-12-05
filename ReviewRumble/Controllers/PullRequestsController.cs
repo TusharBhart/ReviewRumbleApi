@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReviewRumble.Business;
 using ReviewRumble.Models;
@@ -16,7 +17,14 @@ public class PullRequestsController : ControllerBase
         this.pullRequestBal = pullRequestBal;
     }
 
-    [HttpPost]
+	[HttpGet]
+    [Authorize]
+	public ActionResult<string> Check()
+	{
+		return "authenticated";
+	}
+
+	[HttpPost]
     [ProducesResponseType(typeof(PullRequestViewModel), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 404)]
     public async Task<ActionResult<PullRequestViewModel>> AddPullRequest([FromBody] NewPullRequest newPullRequest)

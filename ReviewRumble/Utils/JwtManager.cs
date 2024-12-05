@@ -1,29 +1,42 @@
 ﻿using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using ReviewRumble.Models;
+using System.Text;
 
 namespace ReviewRumble.utils;
 
 public static class JwtManager
 {
-    private const string Secret =
-        "uesrswfkwhek'ssecret1234567890qwertyuiop0876543@/.';;lou][o";
+	private static JwtOption JwtOption;
 
-    public static string GenerateToken(string username, int expireMinutes = 60)
+    static JwtManager()
     {
-        var symmetricKey = Convert.FromBase64String(Secret);
-        var tokenHandler = new JwtSecurityTokenHandler();
+	    JwtOption = new JwtOption
+	    {
+		    Issuer = "https://localhost:44377",
+		    Audience = "https://localhost:44377",
+		    Secret = "uesrswfkwhek'ssecret1234567890qwertyuiop0876543@/.';;lou][o"
+	    };
+    }
+
+    public static async Task<string> GenerateTokenAsync(GitUser user)
+    {
+	    var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOption.Secret));
+		var tokenHandler = new JwtSecurityTokenHandler();
 
         var now = DateTime.UtcNow;
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.Name, username)
+                new Claim(ClaimTypes.Name, user.Login),
+                new Claim("Id", user.Id.ToString())
             ]),
 
-            Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
-
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey),
+            Expires = now.AddMinutes(Convert.ToInt32(JwtOption.ExpiryInMinutes)),
+            Issuer = JwtOption.Issuer,
+            Audience = JwtOption.Audience,
+            SigningCredentials = new SigningCredentials(symmetricKey,
                 SecurityAlgorithms.HmacSha256Signature)
         };
 
@@ -31,5 +44,36 @@ public static class JwtManager
         var token = tokenHandler.WriteToken(securityToken);
 
         return token;
+    }
+
+    public static async Task<int?> ValidateTokenAsync(string? token)
+    {
+        if(token == null) return null;
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        try
+        {
+	        tokenHandler.ValidateToken(token, GetTokenValidationParameters(), out SecurityToken validatedToken);
+	        var jwt = (JwtSecurityToken)validatedToken;
+	        return int.Parse(jwt.Claims.First(c => c.Type == "Id").Value);
+        }
+        catch
+        {
+	        return null;
+        }
+	}
+
+    public static TokenValidationParameters GetTokenValidationParameters()
+    {
+		var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOption.Secret));
+		return new TokenValidationParameters
+	    {
+		    IssuerSigningKey = symmetricKey,
+		    ValidateIssuerSigningKey = true,
+            ValidAudience = JwtOption.Audience,
+            ValidIssuer = JwtOption.Issuer,
+		    ValidateLifetime = true,
+	    };
     }
 }

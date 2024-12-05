@@ -6,11 +6,11 @@ namespace ReviewRumble.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserManager userManager;
+        private readonly IAuthBusiness _authBusiness;
 
-        public AuthController(IUserManager userManager)
+        public AuthController(IAuthBusiness authBusiness)
         {
-            this.userManager = userManager;
+            this._authBusiness = authBusiness;
         }
 
         [HttpPost("login")]
@@ -18,12 +18,12 @@ namespace ReviewRumble.Controllers
         {
             try
             {
-                var response = await userManager.GetAccessToken(code);
+                var response = await _authBusiness.GetAccessTokenAsync(code);
                 return Ok(response);
             }
             catch(Exception) 
             {
-                return Unauthorized("Not Authorized");
+                return Unauthorized("NotAuthorized");
             }
         }
     }
