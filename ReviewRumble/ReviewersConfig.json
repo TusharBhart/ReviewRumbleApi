@@ -78,19 +78,19 @@
     ]
   },
   "repositories": {
-    "myProductsUi": {
+    "myproductsui": {
       "priority": 2,
       "reviewers": [ "angularDevelopers" ]
     },
-    "businessRuleApi": {
+    "businessruleapi": {
       "priority": 3,
       "reviewers": [ "brApiReviewers", "brApiReviewers" ]
     },
-    "productionAppConfiguration": {
+    "productionappconfiguration": {
       "priority": 1,
       "reviewers": [ "prodConfigAdmins", "prodConfigAccess" ]
     },
-    "nonProdAppConfiguration": {
+    "nonprodappconfiguration": {
       "priority": 4,
       "reviewers": [ "nonProdConfigAdmins", "allReviewers" ]
     },

@@ -16,11 +16,18 @@ public class ReviewsConfigManager
 
     public List<string> GetRepositoryGroups(string repo)
     {
-        var repositoryConfig = repositoryGroups.TryGetValue(repo, out var group)
+        var repositoryConfig = repositoryGroups.TryGetValue(repo.ToLower(), out var group)
             ? group
             : repositoryGroups["default"];
 
         return repositoryConfig.Reviewers;
+    }
+
+    public int GetRepositoryPriority(string repo)
+    {
+        return repositoryGroups.TryGetValue(repo.ToLower(), out var group)
+            ? group.Priority
+            : repositoryGroups["default"].Priority;
     }
 
     public List<string>? GetGroupReviewers(string group)

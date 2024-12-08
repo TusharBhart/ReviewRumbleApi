@@ -12,6 +12,13 @@ public class ApiDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Id)
+                .ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<PullRequestReviewer>()
             .HasKey(prr => new { prr.PullRequestId, prr.ReviewerId });
 

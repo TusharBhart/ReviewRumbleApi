@@ -30,7 +30,7 @@ public static class JwtManager
         {
             Subject = new ClaimsIdentity([
                 new Claim(ClaimTypes.Name, user.Login),
-                new Claim("Id", user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             ]),
 
             Expires = now.AddMinutes(Convert.ToInt32(JwtOption.ExpiryInMinutes)),

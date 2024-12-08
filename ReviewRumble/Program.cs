@@ -10,6 +10,7 @@ using ReviewRumble.Models;
 using ReviewRumble.Repository;
 using ReviewRumble.utils;
 using ReviewRumble.Utils;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<ReviewsConfigManager>();
 builder.Services.AddScoped<IPullRequestBal, PullRequestBal>();
 builder.Services.AddScoped<IUserBal, UserBal>();
-builder.Services.AddScoped<IAuthBusiness, AuthBusiness>();
+builder.Services.AddScoped<IAuthBal, AuthBal>();
 builder.Services.AddScoped<IDataRepository, DataRepository>();
 builder.Services.AddJwtTokenServices(builder.Configuration);
 

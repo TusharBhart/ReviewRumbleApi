@@ -6,7 +6,7 @@ using ReviewRumble.utils;
 
 namespace ReviewRumble.Business
 {
-	public class AuthBusiness : IAuthBusiness
+	public class AuthBal : IAuthBal
 	{
 		private IGithubApiClient GithubApiClient { get; set; }
 		private IMemoryCache MemoryCache { get; set; }
@@ -14,7 +14,7 @@ namespace ReviewRumble.Business
 		private IGithubClient GithubClient { get; set; }
 		private GithubClientSettings GithubClientSettings { get; set; }
 
-		public AuthBusiness(IGithubApiClient githubApiClient, IMemoryCache memoryCache,
+        public AuthBal(IGithubApiClient githubApiClient, IMemoryCache memoryCache,
 			IOptions<GithubClientSettings> settings, IDataRepository dataRepository, IGithubClient githubClient)
 		{
 			GithubApiClient = githubApiClient;
@@ -35,6 +35,7 @@ namespace ReviewRumble.Business
 			
 			var accessTokenResponse = await GithubClient.GenerateAccessTokenAsync(accessTokenRequest);
 
+
 			if (accessTokenResponse.AccessToken != null)
 			{
 				return await OnSuccessFullyGettingAccessTokenAsync(accessTokenResponse);
@@ -53,15 +54,15 @@ namespace ReviewRumble.Business
 
 		private async Task AddIfNewUserAsync(GitUser gitUser)
 		{
-			//if (await DataRepository.GetUserByUserNameAsync(gitUser.Username) == null)
-			//{
-			//	var user = new User()
-			//	{
-			//		Username = gitUser.Login,
-			//		Id = gitUser.Id
-			//	};
-			//	await DataRepository.AddReviewerAsync(user);
-			//}
+			if (await DataRepository.GetUserByUserNameAsync(gitUser.Login) == null)
+			{
+				var user = new User()
+				{
+					Username = gitUser.Login,
+					Id = gitUser.Id
+				};
+				await DataRepository.AddUserAsync(user);
+			}
 		}
 	}
 }

@@ -46,7 +46,7 @@ public class PullRequestBal : IPullRequestBal
             AddedDate = newPullRequest.AddedDate,
             Repository = newPullRequest.Repository,
             Reviewers = newPullRequest.Reviewers.Select(r => r.Reviewer.Username).ToList(),
-            Status = ReviewStatusEnum.Open.ToString()
+            Status = ReviewStatusEnum.Open
         };
     }
 
@@ -60,9 +60,18 @@ public class PullRequestBal : IPullRequestBal
             Author = pr.Author?.Username ?? string.Empty,
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
-            Reviewers = pr.Reviewers.Select(r => r.Reviewer.Username).ToList(),
-            Status = ReviewStatusEnum.Open.ToString()
+            Reviewers = pr.Reviewers.Select(r => new
+            {
+                r.Reviewer.Username,
+                r.Reviewer.Id
+            }).ToList(),
+            Status = CalculateReviewStatus(pr.Reviewers.ToList())
         }).ToList();
+    }
+
+    public async Task UpdateStatusAsync(int pullRequestId, int userId, ReviewStatusEnum status)
+    {
+        await dataRepository.UpdatePullRequestStatusAsync(pullRequestId, userId, status);
     }
 
     #region Private functions
@@ -92,6 +101,21 @@ public class PullRequestBal : IPullRequestBal
 
         if (reviewer is not null) restrictedReviewers.Add(reviewer.Username);
         return reviewer;
+    }
+
+    private ReviewStatusEnum CalculateReviewStatus(List<PullRequestReviewer> pullRequestReviewers)
+    {
+        if (pullRequestReviewers.Any(r => r.ReviewStatus == ReviewStatusEnum.RequestChanges))
+        {
+            return ReviewStatusEnum.RequestChanges;
+        }
+
+        if (pullRequestReviewers.Any(r => r.ReviewStatus == ReviewStatusEnum.InReview))
+        {
+            return ReviewStatusEnum.InReview;
+        }
+
+        return pullRequestReviewers.All(r => r.ReviewStatus == ReviewStatusEnum.Approved) ? ReviewStatusEnum.Approved : ReviewStatusEnum.Open;
     }
 
     #endregion

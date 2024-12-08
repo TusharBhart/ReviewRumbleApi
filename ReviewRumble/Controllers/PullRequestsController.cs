@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReviewRumble.Business;
@@ -20,7 +21,7 @@ public class PullRequestsController : ControllerBase
 	[HttpPost]
     [ProducesResponseType(typeof(PullRequestViewModel), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 500)]
-    public async Task<ActionResult<PullRequestViewModel>> AddPullRequest([FromBody] NewPullRequest newPullRequest)
+    public async Task<ActionResult<PullRequestViewModel>> AddAsync([FromBody] NewPullRequest newPullRequest)
     {
         try
         {
@@ -42,13 +43,35 @@ public class PullRequestsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(List<PullRequestViewModel>), 200)]
     [ProducesResponseType(typeof(ProblemDetails), 500)]
-    public async Task<ActionResult<List<PullRequestViewModel>>> GetPullRequests()
+    public async Task<ActionResult<List<PullRequestViewModel>>> GetAsync()
     {
         try
         {
             var pullRequests = await pullRequestBal.GetAllAsync();
 
             return Ok(pullRequests);
+        }
+        catch (Exception)
+        {
+            return Problem(
+                "Error occurred while processing your request.",
+                statusCode: (int?)HttpStatusCode.InternalServerError,
+                type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
+                instance: HttpContext.Request.Path);
+        }
+    }
+
+    [HttpPut("stauts")]
+    [ProducesResponseType(typeof(ProblemDetails), 500)]
+    public async Task<ActionResult<List<PullRequestViewModel>>> UpdateStatusAsync([FromBody] UpdatePullRequestStatus updatePullRequestStatus)
+    {
+        try
+        {
+            var userId = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ?? "1";
+
+            await pullRequestBal.UpdateStatusAsync(updatePullRequestStatus.Id, Convert.ToInt32(userId), updatePullRequestStatus.Status);
+
+            return Ok(new { Message = "Pull request status updated successfully."});
         }
         catch (Exception)
         {

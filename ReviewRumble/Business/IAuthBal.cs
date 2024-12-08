@@ -1,6 +1,6 @@
 ﻿namespace ReviewRumble.Business
 {
-	public interface IAuthBusiness
+	public interface IAuthBal
 	{
 		public Task<string> GetAccessTokenAsync(string code);
 	}

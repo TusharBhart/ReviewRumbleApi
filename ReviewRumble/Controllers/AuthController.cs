@@ -6,15 +6,15 @@ namespace ReviewRumble.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthBusiness _authBusiness;
+        private readonly IAuthBal _authBusiness;
 
-        public AuthController(IAuthBusiness authBusiness)
+        public AuthController(IAuthBal authBusiness)
         {
             this._authBusiness = authBusiness;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromQuery] string code)
+        public async Task<IActionResult> Login([FromBody] string code)
         {
             try
             {
