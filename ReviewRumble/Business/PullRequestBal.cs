@@ -46,7 +46,7 @@ public class PullRequestBal : IPullRequestBal
             AddedDate = newPullRequest.AddedDate,
             Repository = newPullRequest.Repository,
             Reviewers = newPullRequest.Reviewers.Select(r => r.Reviewer.Username).ToList(),
-            Status = ReviewStatusEnum.Open
+            Status = ReviewStatusEnum.Open.ToString()
         };
     }
 
@@ -65,7 +65,7 @@ public class PullRequestBal : IPullRequestBal
                 r.Reviewer.Username,
                 r.Reviewer.Id
             }).ToList(),
-            Status = CalculateReviewStatus(pr.Reviewers.ToList())
+            Status = CalculateReviewStatus(pr.Reviewers.ToList()).ToString(),
         }).ToList();
     }
 

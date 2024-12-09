@@ -37,7 +37,7 @@ public class UserBal : IUserBal
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
             Reviewers = pr.Reviewers.Select(r => r.Reviewer.Username).ToList(),
-            Status = pr.Reviewers.Where(r => r.Reviewer.Id == id).FirstOrDefault().ReviewStatus
+            Status = pr.Reviewers.Where(r => r.Reviewer.Id == id).FirstOrDefault().ReviewStatus.ToString()
         }).OrderBy(pr => reviewsConfigManager.GetRepositoryPriority(pr.Repository)).ToList();
     }
 
@@ -52,7 +52,7 @@ public class UserBal : IUserBal
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
             Reviewers = pr.Reviewers.Select(r => r.Reviewer.Username).ToList(),
-            Status = ReviewStatusEnum.Open
+            Status = ReviewStatusEnum.Open.ToString()
         }).ToList();
     }
 
