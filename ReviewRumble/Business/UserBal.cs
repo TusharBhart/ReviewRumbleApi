@@ -33,7 +33,11 @@ public class UserBal : IUserBal
         return pullRequests.Select(pr => new PullRequestViewModel
         {
             Url = pr.Url,
-            Author = pr.Author?.Username ?? string.Empty,
+            Author = new ReviewerInfo
+            {
+                Id = pr.Author?.Id ?? 0,
+                Username = pr.Author?.Username ?? string.Empty,
+            },
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
             Reviewers = pr.Reviewers.Select(r => new ReviewerInfo 
@@ -53,7 +57,11 @@ public class UserBal : IUserBal
         return pullRequests.Select(pr => new PullRequestViewModel
         {
             Url = pr.Url,
-            Author = pr.Author?.Username ?? string.Empty,
+            Author = new ReviewerInfo
+            {
+                Id = pr.Author?.Id ?? 0,
+                Username = pr.Author?.Username ?? string.Empty,
+            },
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
             Reviewers = pr.Reviewers.Select(r => new ReviewerInfo
