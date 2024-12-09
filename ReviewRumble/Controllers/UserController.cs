@@ -105,13 +105,13 @@ public class UserController : ControllerBase
 
     [HttpPut("status")]
     [ProducesResponseType(typeof(ProblemDetails), 500)]
-    public async Task<ActionResult> UpdateStatusAsync([FromBody] ReviewerStatusEnum status)
+    public async Task<ActionResult> UpdateStatusAsync([FromBody] UpdateReviewerStatus status)
     {
         try
         {
             var id = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ?? "7";
 
-            await userBal.UpdateStatusAsync(Convert.ToInt32(id), status);
+            await userBal.UpdateStatusAsync(Convert.ToInt32(id), status.Status);
             return Ok(new { Message = "User status updated successfully." });
         }
         catch (Exception)
