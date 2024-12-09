@@ -2,6 +2,7 @@
 
 public class PullRequestViewModel
 {
+    public int id { get; set; }
     public string Title { get; set; }
     public ReviewerInfo Author { get; set; }
     public string Url { get; set; }

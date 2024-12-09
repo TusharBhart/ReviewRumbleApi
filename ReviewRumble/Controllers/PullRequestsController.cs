@@ -61,15 +61,15 @@ public class PullRequestsController : ControllerBase
         }
     }
 
-    [HttpPut("stauts")]
+    [HttpPut("{id}")]
     [ProducesResponseType(typeof(ProblemDetails), 500)]
-    public async Task<ActionResult<List<PullRequestViewModel>>> UpdateStatusAsync([FromBody] UpdatePullRequestStatus updatePullRequestStatus)
+    public async Task<ActionResult<List<PullRequestViewModel>>> UpdateStatusAsync(int id, [FromBody] UpdatePullRequestStatus updatePullRequestStatus)
     {
         try
         {
             var userId = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value ?? "1";
 
-            await pullRequestBal.UpdateStatusAsync(updatePullRequestStatus.Id, Convert.ToInt32(userId), updatePullRequestStatus.Status);
+            await pullRequestBal.UpdateStatusAsync(id, Convert.ToInt32(userId), updatePullRequestStatus.Status);
 
             return Ok(new { Message = "Pull request status updated successfully."});
         }

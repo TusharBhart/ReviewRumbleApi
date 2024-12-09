@@ -42,6 +42,8 @@ public class PullRequestBal : IPullRequestBal
 
         return new PullRequestViewModel
         {
+            id = newPullRequest.Id,
+            Title = newPullRequest.Url,
             Url = newPullRequest.Url,
             Author = new ReviewerInfo
             {
@@ -66,6 +68,8 @@ public class PullRequestBal : IPullRequestBal
 
         return pullRequests.Select(pr => new PullRequestViewModel
         {
+            id = pr.Id,
+            Title = pr.Url,
             Url = pr.Url,
             Author = new ReviewerInfo
             {
