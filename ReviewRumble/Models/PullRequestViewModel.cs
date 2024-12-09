@@ -8,5 +8,5 @@ public class PullRequestViewModel
     public string Repository { get; set; }
     public string Status { get; set; }
     public DateTime AddedDate { get; set; }
-    public object Reviewers { get; set; }
+    public List<ReviewerInfo> Reviewers { get; set; }
 }

@@ -2,6 +2,7 @@
 using ReviewRumble.Repository;
 using ReviewRumble.Utils;
 using System;
+using Azure.Core;
 
 namespace ReviewRumble.Business;
 
@@ -45,7 +46,12 @@ public class PullRequestBal : IPullRequestBal
             Author = newPullRequest.Author?.Username ?? string.Empty,
             AddedDate = newPullRequest.AddedDate,
             Repository = newPullRequest.Repository,
-            Reviewers = newPullRequest.Reviewers.Select(r => r.Reviewer.Username).ToList(),
+            Reviewers = newPullRequest.Reviewers.Select(r => new ReviewerInfo 
+                {
+                    Id = r.Reviewer.Id,
+                    Username = r.Reviewer.Username
+                })
+                .ToList(),
             Status = ReviewStatusEnum.Open.ToString()
         };
     }
@@ -60,10 +66,10 @@ public class PullRequestBal : IPullRequestBal
             Author = pr.Author?.Username ?? string.Empty,
             AddedDate = pr.AddedDate,
             Repository = pr.Repository,
-            Reviewers = pr.Reviewers.Select(r => new
+            Reviewers = pr.Reviewers.Select(r => new ReviewerInfo()
             {
-                r.Reviewer.Username,
-                r.Reviewer.Id
+                Id = r.Reviewer.Id,
+                Username = r.Reviewer.Username,
             }).ToList(),
             Status = CalculateReviewStatus(pr.Reviewers.ToList()).ToString(),
         }).ToList();
