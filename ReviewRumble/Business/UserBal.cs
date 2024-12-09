@@ -21,7 +21,7 @@ public class UserBal : IUserBal
         {
             Id = user.Id,
             Username = user.Username,
-            Status = user.Status,
+            Status = user.Status.ToString(),
             TotalReviewCount = user.TotalReviewCount
         };
     }
@@ -68,7 +68,7 @@ public class UserBal : IUserBal
         {
             Id = u.Id,
             Username = u.Username,
-            Status = u.Status,
+            Status = u.Status.ToString(),
             TotalReviewCount = u.TotalReviewCount,
         }).ToList();
     }

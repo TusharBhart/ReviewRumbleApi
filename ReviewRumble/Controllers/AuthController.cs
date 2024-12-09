@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ReviewRumble.Business;
+using ReviewRumble.Models;
 
 namespace ReviewRumble.Controllers
 {
@@ -14,12 +15,15 @@ namespace ReviewRumble.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string code)
+        public async Task<IActionResult> Login([FromBody] AuthCode code)
         {
             try
             {
-                var response = await _authBusiness.GetAccessTokenAsync(code);
-                return Ok(response);
+                var response = await _authBusiness.GetAccessTokenAsync(code.code);
+                return Ok(new TokenResponse()
+                {
+                    Token = response
+                });
             }
             catch(Exception) 
             {
